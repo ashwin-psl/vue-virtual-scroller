@@ -5,16 +5,16 @@
 
 [Docs](./packages/vue-virtual-scroller/README.md)
 
-Blazing fast scrolling of any amount of data | [Live demo](https://akryum.github.io/vue-virtual-scroller/) | [Video demo](https://www.youtube.com/watch?v=Uzq1KQV8f4k)
+Blazing fast scrolling of any amount of data | [Live demo](https://ashwin-psl.github.io/vue-virtual-scroller/) | [Video demo](https://www.youtube.com/watch?v=Uzq1KQV8f4k)
 
-For Vue 3 support, see [here](https://github.com/Akryum/vue-virtual-scroller/tree/master/packages/vue-virtual-scroller)
+For Vue 3 support, see [here](https://github.com/ashwin-psl/vue-virtual-scroller/tree/master/packages/vue-virtual-scroller)
 
-[💚️ Become a Sponsor](https://github.com/sponsors/Akryum)
+[💚️ Become a Sponsor](https://github.com/sponsors/ashwin-psl)
 
 ## Sponsors
 
 <p align="center">
   <a href="https://guillaume-chau.info/sponsors/" target="_blank">
-    <img src='https://akryum.netlify.app/sponsors.svg'/>
+    <img src='https://ashwin-psl.netlify.app/sponsors.svg'/>
   </a>
 </p>

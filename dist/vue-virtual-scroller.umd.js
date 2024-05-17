@@ -1,145 +1,236 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('vue')) :
   typeof define === 'function' && define.amd ? define(['exports', 'vue'], factory) :
-  (global = global || self, factory(global['vue-virtual-scroller'] = {}, global.Vue));
-}(this, (function (exports, Vue) { 'use strict';
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global["vue-virtual-scroller"] = {}, global.Vue));
+})(this, (function (exports, Vue) { 'use strict';
 
-  Vue = Vue && Object.prototype.hasOwnProperty.call(Vue, 'default') ? Vue['default'] : Vue;
+  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+  var Vue__default = /*#__PURE__*/_interopDefaultLegacy(Vue);
 
   var config = {
     itemsLimit: 1000
   };
 
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      enumerableOnly && (symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      })), keys.push.apply(keys, symbols);
+    }
+    return keys;
+  }
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = null != arguments[i] ? arguments[i] : {};
+      i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+    return target;
+  }
+  function _typeof$1(obj) {
+    "@babel/helpers - typeof";
+
+    return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
+      return typeof obj;
+    } : function (obj) {
+      return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    }, _typeof$1(obj);
+  }
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+    return obj;
+  }
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+    return arr2;
+  }
+  function _createForOfIteratorHelper(o, allowArrayLike) {
+    var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+    if (!it) {
+      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+        if (it) o = it;
+        var i = 0;
+        var F = function () {};
+        return {
+          s: F,
+          n: function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          },
+          e: function (e) {
+            throw e;
+          },
+          f: F
+        };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var normalCompletion = true,
+      didErr = false,
+      err;
+    return {
+      s: function () {
+        it = it.call(o);
+      },
+      n: function () {
+        var step = it.next();
+        normalCompletion = step.done;
+        return step;
+      },
+      e: function (e) {
+        didErr = true;
+        err = e;
+      },
+      f: function () {
+        try {
+          if (!normalCompletion && it.return != null) it.return();
+        } finally {
+          if (didErr) throw err;
+        }
+      }
+    };
+  }
+
   function getInternetExplorerVersion() {
-    var ua = window.navigator.userAgent;
-    var msie = ua.indexOf('MSIE ');
+  	var ua = window.navigator.userAgent;
 
-    if (msie > 0) {
-      // IE 10 or older => return version number
-      return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-    }
+  	var msie = ua.indexOf('MSIE ');
+  	if (msie > 0) {
+  		// IE 10 or older => return version number
+  		return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+  	}
 
-    var trident = ua.indexOf('Trident/');
+  	var trident = ua.indexOf('Trident/');
+  	if (trident > 0) {
+  		// IE 11 => return version number
+  		var rv = ua.indexOf('rv:');
+  		return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+  	}
 
-    if (trident > 0) {
-      // IE 11 => return version number
-      var rv = ua.indexOf('rv:');
-      return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-    }
+  	var edge = ua.indexOf('Edge/');
+  	if (edge > 0) {
+  		// Edge (IE 12+) => return version number
+  		return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+  	}
 
-    var edge = ua.indexOf('Edge/');
-
-    if (edge > 0) {
-      // Edge (IE 12+) => return version number
-      return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
-    } // other browser
-
-
-    return -1;
+  	// other browser
+  	return -1;
   }
 
   var isIE = void 0;
 
   function initCompat() {
-    if (!initCompat.init) {
-      initCompat.init = true;
-      isIE = getInternetExplorerVersion() !== -1;
-    }
+  	if (!initCompat.init) {
+  		initCompat.init = true;
+  		isIE = getInternetExplorerVersion() !== -1;
+  	}
   }
 
-  var ResizeObserver$1 = {
-    render: function render() {
-      var _vm = this;
+  var ResizeObserver$1 = { render: function render() {
+  		var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { staticClass: "resize-observer", attrs: { "tabindex": "-1" } });
+  	}, staticRenderFns: [], _scopeId: 'data-v-b329ee4c',
+  	name: 'resize-observer',
 
-      var _h = _vm.$createElement;
+  	methods: {
+  		compareAndNotify: function compareAndNotify() {
+  			if (this._w !== this.$el.offsetWidth || this._h !== this.$el.offsetHeight) {
+  				this._w = this.$el.offsetWidth;
+  				this._h = this.$el.offsetHeight;
+  				this.$emit('notify');
+  			}
+  		},
+  		addResizeHandlers: function addResizeHandlers() {
+  			this._resizeObject.contentDocument.defaultView.addEventListener('resize', this.compareAndNotify);
+  			this.compareAndNotify();
+  		},
+  		removeResizeHandlers: function removeResizeHandlers() {
+  			if (this._resizeObject && this._resizeObject.onload) {
+  				if (!isIE && this._resizeObject.contentDocument) {
+  					this._resizeObject.contentDocument.defaultView.removeEventListener('resize', this.compareAndNotify);
+  				}
+  				delete this._resizeObject.onload;
+  			}
+  		}
+  	},
 
-      var _c = _vm._self._c || _h;
+  	mounted: function mounted() {
+  		var _this = this;
 
-      return _c('div', {
-        staticClass: "resize-observer",
-        attrs: {
-          "tabindex": "-1"
-        }
-      });
-    },
-    staticRenderFns: [],
-    _scopeId: 'data-v-b329ee4c',
-    name: 'resize-observer',
-    methods: {
-      compareAndNotify: function compareAndNotify() {
-        if (this._w !== this.$el.offsetWidth || this._h !== this.$el.offsetHeight) {
-          this._w = this.$el.offsetWidth;
-          this._h = this.$el.offsetHeight;
-          this.$emit('notify');
-        }
-      },
-      addResizeHandlers: function addResizeHandlers() {
-        this._resizeObject.contentDocument.defaultView.addEventListener('resize', this.compareAndNotify);
+  		initCompat();
+  		this.$nextTick(function () {
+  			_this._w = _this.$el.offsetWidth;
+  			_this._h = _this.$el.offsetHeight;
+  		});
+  		var object = document.createElement('object');
+  		this._resizeObject = object;
+  		object.setAttribute('aria-hidden', 'true');
+  		object.setAttribute('tabindex', -1);
+  		object.onload = this.addResizeHandlers;
+  		object.type = 'text/html';
+  		if (isIE) {
+  			this.$el.appendChild(object);
+  		}
+  		object.data = 'about:blank';
+  		if (!isIE) {
+  			this.$el.appendChild(object);
+  		}
+  	},
+  	beforeDestroy: function beforeDestroy() {
+  		this.removeResizeHandlers();
+  	}
+  };
 
-        this.compareAndNotify();
-      },
-      removeResizeHandlers: function removeResizeHandlers() {
-        if (this._resizeObject && this._resizeObject.onload) {
-          if (!isIE && this._resizeObject.contentDocument) {
-            this._resizeObject.contentDocument.defaultView.removeEventListener('resize', this.compareAndNotify);
-          }
+  // Install the components
+  function install$1(Vue) {
+  	Vue.component('resize-observer', ResizeObserver$1);
+  	Vue.component('ResizeObserver', ResizeObserver$1);
+  }
 
-          delete this._resizeObject.onload;
-        }
-      }
-    },
-    mounted: function mounted() {
-      var _this = this;
+  // Plugin
+  var plugin$2 = {
+  	// eslint-disable-next-line no-undef
+  	version: "0.4.5",
+  	install: install$1
+  };
 
-      initCompat();
-      this.$nextTick(function () {
-        _this._w = _this.$el.offsetWidth;
-        _this._h = _this.$el.offsetHeight;
-      });
-      var object = document.createElement('object');
-      this._resizeObject = object;
-      object.setAttribute('aria-hidden', 'true');
-      object.setAttribute('tabindex', -1);
-      object.onload = this.addResizeHandlers;
-      object.type = 'text/html';
-
-      if (isIE) {
-        this.$el.appendChild(object);
-      }
-
-      object.data = 'about:blank';
-
-      if (!isIE) {
-        this.$el.appendChild(object);
-      }
-    },
-    beforeDestroy: function beforeDestroy() {
-      this.removeResizeHandlers();
-    }
-  }; // Install the components
-
-  function install(Vue) {
-    Vue.component('resize-observer', ResizeObserver$1);
-    Vue.component('ResizeObserver', ResizeObserver$1);
-  } // Plugin
-
-
-  var plugin = {
-    // eslint-disable-next-line no-undef
-    version: "0.4.5",
-    install: install
-  }; // Auto-install
-
-  var GlobalVue = null;
-
+  // Auto-install
+  var GlobalVue$2 = null;
   if (typeof window !== 'undefined') {
-    GlobalVue = window.Vue;
+  	GlobalVue$2 = window.Vue;
   } else if (typeof global !== 'undefined') {
-    GlobalVue = global.Vue;
+  	GlobalVue$2 = global.Vue;
   }
-
-  if (GlobalVue) {
-    GlobalVue.use(plugin);
+  if (GlobalVue$2) {
+  	GlobalVue$2.use(plugin$2);
   }
 
   function _typeof(obj) {
@@ -213,7 +304,6 @@
 
     return options;
   }
-
   function throttle(callback, delay) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
     var timeout;
@@ -252,7 +342,6 @@
 
     return throttled;
   }
-
   function deepEqual(val1, val2) {
     if (val1 === val2) return true;
 
@@ -269,7 +358,9 @@
     return false;
   }
 
-  var VisibilityState = /*#__PURE__*/function () {
+  var VisibilityState =
+  /*#__PURE__*/
+  function () {
     function VisibilityState(el, options, vnode) {
       _classCallCheck(this, VisibilityState);
 
@@ -415,7 +506,7 @@
     unbind: unbind
   };
 
-  function install$1(Vue) {
+  function install(Vue) {
     Vue.directive('observe-visibility', ObserveVisibility);
     /* -- Add more components here -- */
   }
@@ -424,12 +515,12 @@
   /* You shouldn't have to modify the code below */
   // Plugin
 
-
   var plugin$1 = {
     // eslint-disable-next-line no-undef
     version: "0.4.6",
-    install: install$1
+    install: install
   };
+
   var GlobalVue$1 = null;
 
   if (typeof window !== 'undefined') {
@@ -450,18 +541,16 @@
 
   var scrollparent = createCommonjsModule(function (module) {
   (function (root, factory) {
-    if ( module.exports) {
+    if (module.exports) {
       module.exports = factory();
     } else {
       root.Scrollparent = factory();
     }
-  })(commonjsGlobal, function () {
+  }(commonjsGlobal, function () {
     var regex = /(auto|scroll)/;
 
     var parents = function (node, ps) {
-      if (node.parentNode === null) {
-        return ps;
-      }
+      if (node.parentNode === null) { return ps; }
 
       return parents(node.parentNode, ps.concat([node]));
     };
@@ -475,12 +564,12 @@
     };
 
     var scroll = function (node) {
-      return regex.test(overflow(node));
+     return regex.test(overflow(node));
     };
 
     var scrollParent = function (node) {
       if (!(node instanceof HTMLElement || node instanceof SVGElement)) {
-        return;
+        return ;
       }
 
       var ps = parents(node.parentNode, []);
@@ -495,10 +584,10 @@
     };
 
     return scrollParent;
-  });
+  }));
   });
 
-  const props = {
+  var props = {
     items: {
       type: Array,
       required: true
@@ -510,7 +599,9 @@
     direction: {
       type: String,
       default: 'vertical',
-      validator: value => ['vertical', 'horizontal'].includes(value)
+      validator: function validator(value) {
+        return ['vertical', 'horizontal'].includes(value);
+      }
     },
     listTag: {
       type: String,
@@ -522,36 +613,32 @@
     }
   };
   function simpleArray() {
-    return this.items.length && typeof this.items[0] !== 'object';
+    return this.items.length && _typeof$1(this.items[0]) !== 'object';
   }
 
-  let supportsPassive = false;
-
+  var supportsPassive = false;
   if (typeof window !== 'undefined') {
     supportsPassive = false;
-
     try {
       var opts = Object.defineProperty({}, 'passive', {
-        get() {
+        get: function get() {
           supportsPassive = true;
         }
-
       });
       window.addEventListener('test', null, opts);
     } catch (e) {}
   }
 
-  //
-  let uid = 0;
-  var script = {
+  var uid = 0;
+  var script$2 = {
     name: 'RecycleScroller',
     components: {
       ResizeObserver: ResizeObserver$1
     },
     directives: {
-      ObserveVisibility
+      ObserveVisibility: ObserveVisibility
     },
-    props: { ...props,
+    props: _objectSpread2(_objectSpread2({}, props), {}, {
       itemSize: {
         type: Number,
         default: null
@@ -612,9 +699,8 @@
         type: [String, Object, Array],
         default: ''
       }
-    },
-
-    data() {
+    }),
+    data: function data() {
       return {
         pool: [],
         totalSize: 0,
@@ -622,129 +708,112 @@
         hoverKey: null
       };
     },
-
     computed: {
-      sizes() {
+      sizes: function sizes() {
         if (this.itemSize === null) {
-          const sizes = {
+          var sizes = {
             '-1': {
               accumulator: 0
             }
           };
-          const items = this.items;
-          const field = this.sizeField;
-          const minItemSize = this.minItemSize;
-          let computedMinSize = 10000;
-          let accumulator = 0;
-          let current;
-
-          for (let i = 0, l = items.length; i < l; i++) {
+          var items = this.items;
+          var field = this.sizeField;
+          var minItemSize = this.minItemSize;
+          var computedMinSize = 10000;
+          var accumulator = 0;
+          var current;
+          for (var i = 0, l = items.length; i < l; i++) {
             current = items[i][field] || minItemSize;
-
             if (current < computedMinSize) {
               computedMinSize = current;
             }
-
             accumulator += current;
             sizes[i] = {
-              accumulator,
+              accumulator: accumulator,
               size: current
             };
-          } // eslint-disable-next-line
-
-
+          }
+          // eslint-disable-next-line
           this.$_computedMinItemSize = computedMinSize;
           return sizes;
         }
-
         return [];
       },
-
-      simpleArray
+      simpleArray: simpleArray
     },
     watch: {
-      items() {
+      items: function items() {
         this.updateVisibleItems(true);
       },
-
-      pageMode() {
+      pageMode: function pageMode() {
         this.applyPageMode();
         this.updateVisibleItems(false);
       },
-
       sizes: {
-        handler() {
+        handler: function handler() {
           this.updateVisibleItems(false);
         },
-
         deep: true
       },
-
-      gridItems() {
+      gridItems: function gridItems() {
         this.updateVisibleItems(true);
       },
-
-      itemSecondarySize() {
+      itemSecondarySize: function itemSecondarySize() {
         this.updateVisibleItems(true);
       }
-
     },
-
-    created() {
+    created: function created() {
       this.$_startIndex = 0;
       this.$_endIndex = 0;
       this.$_views = new Map();
       this.$_unusedViews = new Map();
       this.$_scrollDirty = false;
-      this.$_lastUpdateScrollPosition = 0; // In SSR mode, we also prerender the same number of item for the first render
-      // to avoir mismatch between server and client templates
+      this.$_lastUpdateScrollPosition = 0;
 
+      // In SSR mode, we also prerender the same number of item for the first render
+      // to avoir mismatch between server and client templates
       if (this.prerender) {
         this.$_prerender = true;
         this.updateVisibleItems(false);
       }
-
       if (this.gridItems && !this.itemSize) {
         console.error('[vue-recycle-scroller] You must provide an itemSize when using gridItems');
       }
     },
-
-    mounted() {
+    mounted: function mounted() {
+      var _this = this;
       this.applyPageMode();
-      this.$nextTick(() => {
+      this.$nextTick(function () {
         // In SSR mode, render the real number of visible items
-        this.$_prerender = false;
-        this.updateVisibleItems(true);
-        this.ready = true;
+        _this.$_prerender = false;
+        _this.updateVisibleItems(true);
+        _this.ready = true;
       });
     },
-
-    activated() {
-      const lastPosition = this.$_lastUpdateScrollPosition;
-
+    activated: function activated() {
+      var _this2 = this;
+      var lastPosition = this.$_lastUpdateScrollPosition;
       if (typeof lastPosition === 'number') {
-        this.$nextTick(() => {
-          this.scrollToPosition(lastPosition);
+        this.$nextTick(function () {
+          _this2.scrollToPosition(lastPosition);
         });
       }
     },
-
-    beforeDestroy() {
+    beforeDestroy: function beforeDestroy() {
       this.removeListeners();
     },
-
     methods: {
-      addView(pool, index, item, key, type) {
-        const view = {
-          item,
+      addView: function addView(pool, index, item, key, type) {
+        var view = {
+          item: item,
           position: 0
         };
-        const nonReactive = {
+        var nonReactive = {
           id: uid++,
-          index,
+          index: index,
           used: true,
-          key,
-          type
+          key: key,
+          type: type
         };
         Object.defineProperty(view, 'nr', {
           configurable: false,
@@ -753,79 +822,74 @@
         pool.push(view);
         return view;
       },
-
-      unuseView(view, fake = false) {
-        const unusedViews = this.$_unusedViews;
-        const type = view.nr.type;
-        let unusedPool = unusedViews.get(type);
-
+      unuseView: function unuseView(view) {
+        var fake = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var unusedViews = this.$_unusedViews;
+        var type = view.nr.type;
+        var unusedPool = unusedViews.get(type);
         if (!unusedPool) {
           unusedPool = [];
           unusedViews.set(type, unusedPool);
         }
-
         unusedPool.push(view);
-
         if (!fake) {
           view.nr.used = false;
           view.position = -9999;
           this.$_views.delete(view.nr.key);
         }
       },
-
-      handleResize() {
+      handleResize: function handleResize() {
         this.$emit('resize');
         if (this.ready) this.updateVisibleItems(false);
       },
-
-      handleScroll(event) {
+      handleScroll: function handleScroll(event) {
+        var _this3 = this;
         if (!this.$_scrollDirty) {
           this.$_scrollDirty = true;
-          requestAnimationFrame(() => {
-            this.$_scrollDirty = false;
-            const {
-              continuous
-            } = this.updateVisibleItems(false, true); // It seems sometimes chrome doesn't fire scroll event :/
-            // When non continous scrolling is ending, we force a refresh
+          requestAnimationFrame(function () {
+            _this3.$_scrollDirty = false;
+            var _this3$updateVisibleI = _this3.updateVisibleItems(false, true),
+              continuous = _this3$updateVisibleI.continuous;
 
+            // It seems sometimes chrome doesn't fire scroll event :/
+            // When non continous scrolling is ending, we force a refresh
             if (!continuous) {
-              clearTimeout(this.$_refreshTimout);
-              this.$_refreshTimout = setTimeout(this.handleScroll, 100);
+              clearTimeout(_this3.$_refreshTimout);
+              _this3.$_refreshTimout = setTimeout(_this3.handleScroll, 100);
             }
           });
         }
       },
-
-      handleVisibilityChange(isVisible, entry) {
+      handleVisibilityChange: function handleVisibilityChange(isVisible, entry) {
+        var _this4 = this;
         if (this.ready) {
           if (isVisible || entry.boundingClientRect.width !== 0 || entry.boundingClientRect.height !== 0) {
             this.$emit('visible');
-            requestAnimationFrame(() => {
-              this.updateVisibleItems(false);
+            requestAnimationFrame(function () {
+              _this4.updateVisibleItems(false);
             });
           } else {
             this.$emit('hidden');
           }
         }
       },
-
-      updateVisibleItems(checkItem, checkPositionDiff = false) {
-        const itemSize = this.itemSize;
-        const gridItems = this.gridItems || 1;
-        const itemSecondarySize = this.itemSecondarySize || itemSize;
-        const minItemSize = this.$_computedMinItemSize;
-        const typeField = this.typeField;
-        const keyField = this.simpleArray ? null : this.keyField;
-        const items = this.items;
-        const count = items.length;
-        const sizes = this.sizes;
-        const views = this.$_views;
-        const unusedViews = this.$_unusedViews;
-        const pool = this.pool;
-        let startIndex, endIndex;
-        let totalSize;
-        let visibleStartIndex, visibleEndIndex;
-
+      updateVisibleItems: function updateVisibleItems(checkItem) {
+        var checkPositionDiff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var itemSize = this.itemSize;
+        var gridItems = this.gridItems || 1;
+        var itemSecondarySize = this.itemSecondarySize || itemSize;
+        var minItemSize = this.$_computedMinItemSize;
+        var typeField = this.typeField;
+        var keyField = this.simpleArray ? null : this.keyField;
+        var items = this.items;
+        var count = items.length;
+        var sizes = this.sizes;
+        var views = this.$_views;
+        var unusedViews = this.$_unusedViews;
+        var pool = this.pool;
+        var startIndex, endIndex;
+        var totalSize;
+        var visibleStartIndex, visibleEndIndex;
         if (!count) {
           startIndex = endIndex = visibleStartIndex = visibleEndIndex = totalSize = 0;
         } else if (this.$_prerender) {
@@ -833,87 +897,89 @@
           endIndex = visibleEndIndex = Math.min(this.prerender, items.length);
           totalSize = null;
         } else {
-          const scroll = this.getScroll(); // Skip update if use hasn't scrolled enough
+          var scroll = this.getScroll();
 
+          // Skip update if use hasn't scrolled enough
           if (checkPositionDiff) {
-            let positionDiff = scroll.start - this.$_lastUpdateScrollPosition;
+            var positionDiff = scroll.start - this.$_lastUpdateScrollPosition;
             if (positionDiff < 0) positionDiff = -positionDiff;
-
             if (itemSize === null && positionDiff < minItemSize || positionDiff < itemSize) {
               return {
                 continuous: true
               };
             }
           }
-
           this.$_lastUpdateScrollPosition = scroll.start;
-          const buffer = this.buffer;
+          var buffer = this.buffer;
           scroll.start -= buffer;
-          scroll.end += buffer; // account for leading slot
+          scroll.end += buffer;
 
-          let beforeSize = 0;
-
+          // account for leading slot
+          var beforeSize = 0;
           if (this.$refs.before) {
             beforeSize = this.$refs.before.scrollHeight;
             scroll.start -= beforeSize;
-          } // account for trailing slot
+          }
 
-
+          // account for trailing slot
           if (this.$refs.after) {
-            const afterSize = this.$refs.after.scrollHeight;
+            var afterSize = this.$refs.after.scrollHeight;
             scroll.end += afterSize;
-          } // Variable size mode
+          }
 
-
+          // Variable size mode
           if (itemSize === null) {
-            let h;
-            let a = 0;
-            let b = count - 1;
-            let i = ~~(count / 2);
-            let oldI; // Searching for startIndex
+            var h;
+            var a = 0;
+            var b = count - 1;
+            var i = ~~(count / 2);
+            var oldI;
 
+            // Searching for startIndex
             do {
               oldI = i;
               h = sizes[i].accumulator;
-
               if (h < scroll.start) {
                 a = i;
               } else if (i < count - 1 && sizes[i + 1].accumulator > scroll.start) {
                 b = i;
               }
-
               i = ~~((a + b) / 2);
             } while (i !== oldI);
-
             i < 0 && (i = 0);
-            startIndex = i; // For container style
+            startIndex = i;
 
-            totalSize = sizes[count - 1].accumulator; // Searching for endIndex
+            // For container style
+            totalSize = sizes[count - 1].accumulator;
 
-            for (endIndex = i; endIndex < count && sizes[endIndex].accumulator < scroll.end; endIndex++);
-
+            // Searching for endIndex
+            for (endIndex = i; endIndex < count && sizes[endIndex].accumulator < scroll.end; endIndex++) {
+            }
             if (endIndex === -1) {
               endIndex = items.length - 1;
             } else {
-              endIndex++; // Bounds
-
+              endIndex++;
+              // Bounds
               endIndex > count && (endIndex = count);
-            } // search visible startIndex
+            }
 
+            // search visible startIndex
+            for (visibleStartIndex = startIndex; visibleStartIndex < count && beforeSize + sizes[visibleStartIndex].accumulator < scroll.start; visibleStartIndex++) {
+            }
 
-            for (visibleStartIndex = startIndex; visibleStartIndex < count && beforeSize + sizes[visibleStartIndex].accumulator < scroll.start; visibleStartIndex++); // search visible endIndex
-
-
-            for (visibleEndIndex = visibleStartIndex; visibleEndIndex < count && beforeSize + sizes[visibleEndIndex].accumulator < scroll.end; visibleEndIndex++);
+            // search visible endIndex
+            for (visibleEndIndex = visibleStartIndex; visibleEndIndex < count && beforeSize + sizes[visibleEndIndex].accumulator < scroll.end; visibleEndIndex++) {
+            }
           } else {
             // Fixed size mode
             startIndex = ~~(scroll.start / itemSize * gridItems);
-            const remainer = startIndex % gridItems;
+            var remainer = startIndex % gridItems;
             startIndex -= remainer;
             endIndex = Math.ceil(scroll.end / itemSize * gridItems);
             visibleStartIndex = Math.max(0, Math.floor((scroll.start - beforeSize) / itemSize * gridItems));
-            visibleEndIndex = Math.floor((scroll.end - beforeSize) / itemSize * gridItems); // Bounds
+            visibleEndIndex = Math.floor((scroll.end - beforeSize) / itemSize * gridItems);
 
+            // Bounds
             startIndex < 0 && (startIndex = 0);
             endIndex > count && (endIndex = count);
             visibleStartIndex < 0 && (visibleStartIndex = 0);
@@ -921,168 +987,144 @@
             totalSize = Math.ceil(count / gridItems) * itemSize;
           }
         }
-
         if (endIndex - startIndex > config.itemsLimit) {
           this.itemsLimitError();
         }
-
         this.totalSize = totalSize;
-        let view;
-        const continuous = startIndex <= this.$_endIndex && endIndex >= this.$_startIndex;
-
+        var view;
+        var continuous = startIndex <= this.$_endIndex && endIndex >= this.$_startIndex;
         if (this.$_continuous !== continuous) {
           if (continuous) {
             views.clear();
             unusedViews.clear();
-
-            for (let i = 0, l = pool.length; i < l; i++) {
-              view = pool[i];
+            for (var _i = 0, l = pool.length; _i < l; _i++) {
+              view = pool[_i];
               this.unuseView(view);
             }
           }
-
           this.$_continuous = continuous;
         } else if (continuous) {
-          for (let i = 0, l = pool.length; i < l; i++) {
-            view = pool[i];
-
+          for (var _i2 = 0, _l = pool.length; _i2 < _l; _i2++) {
+            view = pool[_i2];
             if (view.nr.used) {
               // Update view item index
               if (checkItem) {
                 view.nr.index = items.indexOf(view.item);
-              } // Check if index is still in visible range
+              }
 
-
+              // Check if index is still in visible range
               if (view.nr.index === -1 || view.nr.index < startIndex || view.nr.index >= endIndex) {
                 this.unuseView(view);
               }
             }
           }
         }
-
-        const unusedIndex = continuous ? null : new Map();
-        let item, type, unusedPool;
-        let v;
-
-        for (let i = startIndex; i < endIndex; i++) {
-          item = items[i];
-          const key = keyField ? item[keyField] : item;
-
+        var unusedIndex = continuous ? null : new Map();
+        var item, type, unusedPool;
+        var v;
+        for (var _i3 = startIndex; _i3 < endIndex; _i3++) {
+          item = items[_i3];
+          var key = keyField ? item[keyField] : item;
           if (key == null) {
-            throw new Error(`Key is ${key} on item (keyField is '${keyField}')`);
+            throw new Error("Key is ".concat(key, " on item (keyField is '").concat(keyField, "')"));
           }
-
           view = views.get(key);
-
-          if (!itemSize && !sizes[i].size) {
+          if (!itemSize && !sizes[_i3].size) {
             if (view) this.unuseView(view);
             continue;
-          } // No view assigned to item
+          }
 
-
+          // No view assigned to item
           if (!view) {
-            if (i === items.length - 1) this.$emit('scroll-end');
-            if (i === 0) this.$emit('scroll-start');
+            if (_i3 === items.length - 1) this.$emit('scroll-end');
+            if (_i3 === 0) this.$emit('scroll-start');
             type = item[typeField];
             unusedPool = unusedViews.get(type);
-
             if (continuous) {
               // Reuse existing view
               if (unusedPool && unusedPool.length) {
                 view = unusedPool.pop();
                 view.item = item;
                 view.nr.used = true;
-                view.nr.index = i;
+                view.nr.index = _i3;
                 view.nr.key = key;
                 view.nr.type = type;
               } else {
-                view = this.addView(pool, i, item, key, type);
+                view = this.addView(pool, _i3, item, key, type);
               }
             } else {
               // Use existing view
               // We don't care if they are already used
               // because we are not in continous scrolling
               v = unusedIndex.get(type) || 0;
-
               if (!unusedPool || v >= unusedPool.length) {
-                view = this.addView(pool, i, item, key, type);
+                view = this.addView(pool, _i3, item, key, type);
                 this.unuseView(view, true);
                 unusedPool = unusedViews.get(type);
               }
-
               view = unusedPool[v];
               view.item = item;
               view.nr.used = true;
-              view.nr.index = i;
+              view.nr.index = _i3;
               view.nr.key = key;
               view.nr.type = type;
               unusedIndex.set(type, v + 1);
               v++;
             }
-
             views.set(key, view);
           } else {
             view.nr.used = true;
             view.item = item;
-          } // Update position
+          }
 
-
+          // Update position
           if (itemSize === null) {
-            view.position = sizes[i - 1].accumulator;
+            view.position = sizes[_i3 - 1].accumulator;
             view.offset = 0;
           } else {
-            view.position = Math.floor(i / gridItems) * itemSize;
-            view.offset = i % gridItems * itemSecondarySize;
+            view.position = Math.floor(_i3 / gridItems) * itemSize;
+            view.offset = _i3 % gridItems * itemSecondarySize;
           }
         }
-
         this.$_startIndex = startIndex;
         this.$_endIndex = endIndex;
-        if (this.emitUpdate) this.$emit('update', startIndex, endIndex, visibleStartIndex, visibleEndIndex); // After the user has finished scrolling
-        // Sort views so text selection is correct
+        if (this.emitUpdate) this.$emit('update', startIndex, endIndex, visibleStartIndex, visibleEndIndex);
 
+        // After the user has finished scrolling
+        // Sort views so text selection is correct
         clearTimeout(this.$_sortTimer);
         this.$_sortTimer = setTimeout(this.sortViews, 300);
         return {
-          continuous
+          continuous: continuous
         };
       },
-
-      getListenerTarget() {
-        let target = scrollparent(this.$el); // Fix global scroll target for Chrome and Safari
-
+      getListenerTarget: function getListenerTarget() {
+        var target = scrollparent(this.$el);
+        // Fix global scroll target for Chrome and Safari
         if (window.document && (target === window.document.documentElement || target === window.document.body)) {
           target = window;
         }
-
         return target;
       },
-
-      getScroll() {
-        const {
-          $el: el,
-          direction
-        } = this;
-        const isVertical = direction === 'vertical';
-        let scrollState;
-
+      getScroll: function getScroll() {
+        var el = this.$el,
+          direction = this.direction;
+        var isVertical = direction === 'vertical';
+        var scrollState;
         if (this.pageMode) {
-          const bounds = el.getBoundingClientRect();
-          const boundsSize = isVertical ? bounds.height : bounds.width;
-          let start = -(isVertical ? bounds.top : bounds.left);
-          let size = isVertical ? window.innerHeight : window.innerWidth;
-
+          var bounds = el.getBoundingClientRect();
+          var boundsSize = isVertical ? bounds.height : bounds.width;
+          var start = -(isVertical ? bounds.top : bounds.left);
+          var size = isVertical ? window.innerHeight : window.innerWidth;
           if (start < 0) {
             size += start;
             start = 0;
           }
-
           if (start + size > boundsSize) {
             size = boundsSize - start;
           }
-
           scrollState = {
-            start,
+            start: start,
             end: start + size
           };
         } else if (isVertical) {
@@ -1096,67 +1138,57 @@
             end: el.scrollLeft + el.clientWidth
           };
         }
-
         return scrollState;
       },
-
-      applyPageMode() {
+      applyPageMode: function applyPageMode() {
         if (this.pageMode) {
           this.addListeners();
         } else {
           this.removeListeners();
         }
       },
-
-      addListeners() {
+      addListeners: function addListeners() {
         this.listenerTarget = this.getListenerTarget();
         this.listenerTarget.addEventListener('scroll', this.handleScroll, supportsPassive ? {
           passive: true
         } : false);
         this.listenerTarget.addEventListener('resize', this.handleResize);
       },
-
-      removeListeners() {
+      removeListeners: function removeListeners() {
         if (!this.listenerTarget) {
           return;
         }
-
         this.listenerTarget.removeEventListener('scroll', this.handleScroll);
         this.listenerTarget.removeEventListener('resize', this.handleResize);
         this.listenerTarget = null;
       },
-
-      scrollToItem(index) {
-        let scroll;
-
+      scrollToItem: function scrollToItem(index) {
+        var scroll;
         if (this.itemSize === null) {
           scroll = index > 0 ? this.sizes[index - 1].accumulator : 0;
         } else {
           scroll = Math.floor(index / this.gridItems) * this.itemSize;
         }
-
         this.scrollToPosition(scroll);
       },
-
-      scrollToPosition(position) {
-        const direction = this.direction === 'vertical' ? {
+      scrollToPosition: function scrollToPosition(position) {
+        var direction = this.direction === 'vertical' ? {
           scroll: 'scrollTop',
           start: 'top'
         } : {
           scroll: 'scrollLeft',
           start: 'left'
         };
-        let viewport;
-        let scrollDirection;
-        let scrollDistance;
-
+        var viewport;
+        var scrollDirection;
+        var scrollDistance;
         if (this.pageMode) {
-          const viewportEl = scrollparent(this.$el); // HTML doesn't overflow like other elements
-
-          const scrollTop = viewportEl.tagName === 'HTML' ? 0 : viewportEl[direction.scroll];
-          const bounds = viewportEl.getBoundingClientRect();
-          const scroller = this.$el.getBoundingClientRect();
-          const scrollerPosition = scroller[direction.start] - bounds[direction.start];
+          var viewportEl = scrollparent(this.$el);
+          // HTML doesn't overflow like other elements
+          var scrollTop = viewportEl.tagName === 'HTML' ? 0 : viewportEl[direction.scroll];
+          var bounds = viewportEl.getBoundingClientRect();
+          var scroller = this.$el.getBoundingClientRect();
+          var scrollerPosition = scroller[direction.start] - bounds[direction.start];
           viewport = viewportEl;
           scrollDirection = direction.scroll;
           scrollDistance = position + scrollTop + scrollerPosition;
@@ -1165,112 +1197,103 @@
           scrollDirection = direction.scroll;
           scrollDistance = position;
         }
-
         viewport[scrollDirection] = scrollDistance;
       },
-
-      itemsLimitError() {
-        setTimeout(() => {
-          console.log('It seems the scroller element isn\'t scrolling, so it tries to render all the items at once.', 'Scroller:', this.$el);
+      itemsLimitError: function itemsLimitError() {
+        var _this5 = this;
+        setTimeout(function () {
+          console.log('It seems the scroller element isn\'t scrolling, so it tries to render all the items at once.', 'Scroller:', _this5.$el);
           console.log('Make sure the scroller has a fixed height (or width) and \'overflow-y\' (or \'overflow-x\') set to \'auto\' so it can scroll correctly and only render the items visible in the scroll viewport.');
         });
         throw new Error('Rendered items limit reached');
       },
-
-      sortViews() {
-        this.pool.sort((viewA, viewB) => viewA.nr.index - viewB.nr.index);
+      sortViews: function sortViews() {
+        this.pool.sort(function (viewA, viewB) {
+          return viewA.nr.index - viewB.nr.index;
+        });
       }
-
     }
   };
 
-  function normalizeComponent(template, style, script, scopeId, isFunctionalTemplate, moduleIdentifier
-  /* server only */
-  , shadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
-    if (typeof shadowMode !== 'boolean') {
-      createInjectorSSR = createInjector;
-      createInjector = shadowMode;
-      shadowMode = false;
-    } // Vue.extend constructor export interop.
-
-
-    const options = typeof script === 'function' ? script.options : script; // render functions
-
-    if (template && template.render) {
-      options.render = template.render;
-      options.staticRenderFns = template.staticRenderFns;
-      options._compiled = true; // functional template
-
-      if (isFunctionalTemplate) {
-        options.functional = true;
+  function normalizeComponent(template, style, script, scopeId, isFunctionalTemplate, moduleIdentifier /* server only */, shadowMode, createInjector, createInjectorSSR, createInjectorShadow) {
+      if (typeof shadowMode !== 'boolean') {
+          createInjectorSSR = createInjector;
+          createInjector = shadowMode;
+          shadowMode = false;
       }
-    } // scopedId
-
-
-    if (scopeId) {
-      options._scopeId = scopeId;
-    }
-
-    let hook;
-
-    if (moduleIdentifier) {
-      // server build
-      hook = function (context) {
-        // 2.3 injection
-        context = context || // cached call
-        this.$vnode && this.$vnode.ssrContext || // stateful
-        this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext; // functional
-        // 2.2 with runInNewContext: true
-
-        if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-          context = __VUE_SSR_CONTEXT__;
-        } // inject component styles
-
-
-        if (style) {
-          style.call(this, createInjectorSSR(context));
-        } // register component module identifier for async chunk inference
-
-
-        if (context && context._registeredComponents) {
-          context._registeredComponents.add(moduleIdentifier);
-        }
-      }; // used by ssr in case component is cached and beforeCreate
-      // never gets called
-
-
-      options._ssrRegister = hook;
-    } else if (style) {
-      hook = shadowMode ? function (context) {
-        style.call(this, createInjectorShadow(context, this.$root.$options.shadowRoot));
-      } : function (context) {
-        style.call(this, createInjector(context));
-      };
-    }
-
-    if (hook) {
-      if (options.functional) {
-        // register for functional component in vue file
-        const originalRender = options.render;
-
-        options.render = function renderWithStyleInjection(h, context) {
-          hook.call(context);
-          return originalRender(h, context);
-        };
-      } else {
-        // inject component registration as beforeCreate hook
-        const existing = options.beforeCreate;
-        options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
+      // Vue.extend constructor export interop.
+      const options = typeof script === 'function' ? script.options : script;
+      // render functions
+      if (template && template.render) {
+          options.render = template.render;
+          options.staticRenderFns = template.staticRenderFns;
+          options._compiled = true;
+          // functional template
+          if (isFunctionalTemplate) {
+              options.functional = true;
+          }
       }
-    }
-
-    return script;
+      // scopedId
+      if (scopeId) {
+          options._scopeId = scopeId;
+      }
+      let hook;
+      if (moduleIdentifier) {
+          // server build
+          hook = function (context) {
+              // 2.3 injection
+              context =
+                  context || // cached call
+                      (this.$vnode && this.$vnode.ssrContext) || // stateful
+                      (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext); // functional
+              // 2.2 with runInNewContext: true
+              if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+                  context = __VUE_SSR_CONTEXT__;
+              }
+              // inject component styles
+              if (style) {
+                  style.call(this, createInjectorSSR(context));
+              }
+              // register component module identifier for async chunk inference
+              if (context && context._registeredComponents) {
+                  context._registeredComponents.add(moduleIdentifier);
+              }
+          };
+          // used by ssr in case component is cached and beforeCreate
+          // never gets called
+          options._ssrRegister = hook;
+      }
+      else if (style) {
+          hook = shadowMode
+              ? function (context) {
+                  style.call(this, createInjectorShadow(context, this.$root.$options.shadowRoot));
+              }
+              : function (context) {
+                  style.call(this, createInjector(context));
+              };
+      }
+      if (hook) {
+          if (options.functional) {
+              // register for functional component in vue file
+              const originalRender = options.render;
+              options.render = function renderWithStyleInjection(h, context) {
+                  hook.call(context);
+                  return originalRender(h, context);
+              };
+          }
+          else {
+              // inject component registration as beforeCreate hook
+              const existing = options.beforeCreate;
+              options.beforeCreate = existing ? [].concat(existing, hook) : [hook];
+          }
+      }
+      return script;
   }
 
   /* script */
-  const __vue_script__ = script;
+  const __vue_script__$2 = script$2;
   /* template */
-  var __vue_render__ = function() {
+  var __vue_render__$1 = function () {
     var _obj, _obj$1;
     var _vm = this;
     var _h = _vm.$createElement;
@@ -1283,22 +1306,22 @@
             name: "observe-visibility",
             rawName: "v-observe-visibility",
             value: _vm.handleVisibilityChange,
-            expression: "handleVisibilityChange"
-          }
+            expression: "handleVisibilityChange",
+          },
         ],
         staticClass: "vue-recycle-scroller",
         class:
           ((_obj = {
             ready: _vm.ready,
-            "page-mode": _vm.pageMode
+            "page-mode": _vm.pageMode,
           }),
           (_obj["direction-" + _vm.direction] = true),
           _obj),
         on: {
-          "&scroll": function($event) {
-            return _vm.handleScroll($event)
-          }
-        }
+          "&scroll": function ($event) {
+            return _vm.handleScroll.apply(null, arguments)
+          },
+        },
       },
       [
         _vm.$slots.before
@@ -1321,10 +1344,10 @@
               ((_obj$1 = {}),
               (_obj$1[_vm.direction === "vertical" ? "minHeight" : "minWidth"] =
                 _vm.totalSize + "px"),
-              _obj$1)
+              _obj$1),
           },
           [
-            _vm._l(_vm.pool, function(view) {
+            _vm._l(_vm.pool, function (view) {
               return _c(
                 _vm.itemTag,
                 _vm._g(
@@ -1335,8 +1358,8 @@
                     class: [
                       _vm.itemClass,
                       {
-                        hover: !_vm.skipHover && _vm.hoverKey === view.nr.key
-                      }
+                        hover: !_vm.skipHover && _vm.hoverKey === view.nr.key,
+                      },
                     ],
                     style: _vm.ready
                       ? {
@@ -1359,33 +1382,33 @@
                             ? (_vm.direction === "horizontal"
                                 ? _vm.itemSecondarySize || _vm.itemSize
                                 : _vm.itemSize) + "px"
-                            : undefined
+                            : undefined,
                         }
-                      : null
+                      : null,
                   },
                   _vm.skipHover
                     ? {}
                     : {
-                        mouseenter: function() {
+                        mouseenter: function () {
                           _vm.hoverKey = view.nr.key;
                         },
-                        mouseleave: function() {
+                        mouseleave: function () {
                           _vm.hoverKey = null;
-                        }
+                        },
                       }
                 ),
                 [
                   _vm._t("default", null, {
                     item: view.item,
                     index: view.nr.index,
-                    active: view.nr.used
-                  })
+                    active: view.nr.used,
+                  }),
                 ],
                 2
               )
             }),
             _vm._v(" "),
-            _vm._t("empty")
+            _vm._t("empty"),
           ],
           2
         ),
@@ -1399,22 +1422,22 @@
             )
           : _vm._e(),
         _vm._v(" "),
-        _c("ResizeObserver", { on: { notify: _vm.handleResize } })
+        _c("ResizeObserver", { on: { notify: _vm.handleResize } }),
       ],
       1
     )
   };
-  var __vue_staticRenderFns__ = [];
-  __vue_render__._withStripped = true;
+  var __vue_staticRenderFns__$1 = [];
+  __vue_render__$1._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__ = undefined;
+    const __vue_inject_styles__$2 = undefined;
     /* scoped */
-    const __vue_scope_id__ = undefined;
+    const __vue_scope_id__$2 = undefined;
     /* module identifier */
-    const __vue_module_identifier__ = undefined;
+    const __vue_module_identifier__$2 = undefined;
     /* functional template */
-    const __vue_is_functional_template__ = false;
+    const __vue_is_functional_template__$2 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -1423,64 +1446,67 @@
     
 
     
-    const __vue_component__ = normalizeComponent(
-      { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
-      __vue_inject_styles__,
-      __vue_script__,
-      __vue_scope_id__,
-      __vue_is_functional_template__,
-      __vue_module_identifier__,
+    const __vue_component__$2 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
+      __vue_inject_styles__$2,
+      __vue_script__$2,
+      __vue_scope_id__$2,
+      __vue_is_functional_template__$2,
+      __vue_module_identifier__$2,
       false,
       undefined,
       undefined,
       undefined
     );
 
-  //
   var script$1 = {
     name: 'DynamicScroller',
     components: {
-      RecycleScroller: __vue_component__
+      RecycleScroller: __vue_component__$2
     },
-
-    provide() {
+    provide: function provide() {
       if (typeof ResizeObserver !== 'undefined') {
-        this.$_resizeObserver = new ResizeObserver(entries => {
-          requestAnimationFrame(() => {
+        this.$_resizeObserver = new ResizeObserver(function (entries) {
+          requestAnimationFrame(function () {
             if (!Array.isArray(entries)) {
               return;
             }
-
-            for (const entry of entries) {
-              if (entry.target) {
-                const event = new CustomEvent('resize', {
-                  detail: {
-                    contentRect: entry.contentRect
-                  }
-                });
-                entry.target.dispatchEvent(event);
+            var _iterator = _createForOfIteratorHelper(entries),
+              _step;
+            try {
+              for (_iterator.s(); !(_step = _iterator.n()).done;) {
+                var entry = _step.value;
+                if (entry.target) {
+                  var event = new CustomEvent('resize', {
+                    detail: {
+                      contentRect: entry.contentRect
+                    }
+                  });
+                  entry.target.dispatchEvent(event);
+                }
               }
+            } catch (err) {
+              _iterator.e(err);
+            } finally {
+              _iterator.f();
             }
           });
         });
       }
-
       return {
         vscrollData: this.vscrollData,
         vscrollParent: this,
         vscrollResizeObserver: this.$_resizeObserver
       };
     },
-
     inheritAttrs: false,
-    props: { ...props,
+    props: _objectSpread2(_objectSpread2({}, props), {}, {
       minItemSize: {
         type: [Number, String],
         required: true
       }
-    },
-
-    data() {
+    }),
+    data: function data() {
       return {
         vscrollData: {
           active: true,
@@ -1491,175 +1517,142 @@
         }
       };
     },
-
     computed: {
-      simpleArray,
-
-      itemsWithSize() {
-        const result = [];
-        const {
-          items,
-          keyField,
-          simpleArray
-        } = this;
-        const sizes = this.vscrollData.sizes;
-        const l = items.length;
-
-        for (let i = 0; i < l; i++) {
-          const item = items[i];
-          const id = simpleArray ? i : item[keyField];
-          let size = sizes[id];
-
+      simpleArray: simpleArray,
+      itemsWithSize: function itemsWithSize() {
+        var result = [];
+        var items = this.items,
+          keyField = this.keyField,
+          simpleArray = this.simpleArray;
+        var sizes = this.vscrollData.sizes;
+        var l = items.length;
+        for (var i = 0; i < l; i++) {
+          var item = items[i];
+          var id = simpleArray ? i : item[keyField];
+          var size = sizes[id];
           if (typeof size === 'undefined' && !this.$_undefinedMap[id]) {
             size = 0;
           }
-
           result.push({
-            item,
-            id,
-            size
+            item: item,
+            id: id,
+            size: size
           });
         }
-
         return result;
       },
-
-      listeners() {
-        const listeners = {};
-
-        for (const key in this.$listeners) {
+      listeners: function listeners() {
+        var listeners = {};
+        for (var key in this.$listeners) {
           if (key !== 'resize' && key !== 'visible') {
             listeners[key] = this.$listeners[key];
           }
         }
-
         return listeners;
       }
-
     },
     watch: {
-      items() {
+      items: function items() {
         this.forceUpdate(false);
       },
-
       simpleArray: {
-        handler(value) {
+        handler: function handler(value) {
           this.vscrollData.simpleArray = value;
         },
-
         immediate: true
       },
-
-      direction(value) {
+      direction: function direction(value) {
         this.forceUpdate(true);
       },
+      itemsWithSize: function itemsWithSize(next, prev) {
+        var scrollTop = this.$el.scrollTop;
 
-      itemsWithSize(next, prev) {
-        const scrollTop = this.$el.scrollTop; // Calculate total diff between prev and next sizes
+        // Calculate total diff between prev and next sizes
         // over current scroll top. Then add it to scrollTop to
         // avoid jumping the contents that the user is seeing.
-
-        let prevActiveTop = 0;
-        let activeTop = 0;
-        const length = Math.min(next.length, prev.length);
-
-        for (let i = 0; i < length; i++) {
+        var prevActiveTop = 0;
+        var activeTop = 0;
+        var length = Math.min(next.length, prev.length);
+        for (var i = 0; i < length; i++) {
           if (prevActiveTop >= scrollTop) {
             break;
           }
-
           prevActiveTop += prev[i].size || this.minItemSize;
           activeTop += next[i].size || this.minItemSize;
         }
-
-        const offset = activeTop - prevActiveTop;
-
+        var offset = activeTop - prevActiveTop;
         if (offset === 0) {
           return;
         }
-
         this.$el.scrollTop += offset;
       }
-
     },
-
-    beforeCreate() {
+    beforeCreate: function beforeCreate() {
       this.$_updates = [];
       this.$_undefinedSizes = 0;
       this.$_undefinedMap = {};
     },
-
-    activated() {
+    activated: function activated() {
       this.vscrollData.active = true;
     },
-
-    deactivated() {
+    deactivated: function deactivated() {
       this.vscrollData.active = false;
     },
-
     methods: {
-      onScrollerResize() {
-        const scroller = this.$refs.scroller;
-
+      onScrollerResize: function onScrollerResize() {
+        var scroller = this.$refs.scroller;
         if (scroller) {
           this.forceUpdate();
         }
-
         this.$emit('resize');
       },
-
-      onScrollerVisible() {
+      onScrollerVisible: function onScrollerVisible() {
         this.$emit('vscroll:update', {
           force: false
         });
         this.$emit('visible');
       },
-
-      forceUpdate(clear = true) {
+      forceUpdate: function forceUpdate() {
+        var clear = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
         if (clear || this.simpleArray) {
           this.vscrollData.validSizes = {};
         }
-
         this.$emit('vscroll:update', {
           force: true
         });
       },
-
-      scrollToItem(index) {
-        const scroller = this.$refs.scroller;
+      scrollToItem: function scrollToItem(index) {
+        var scroller = this.$refs.scroller;
         if (scroller) scroller.scrollToItem(index);
       },
-
-      getItemSize(item, index = undefined) {
-        const id = this.simpleArray ? index != null ? index : this.items.indexOf(item) : item[this.keyField];
+      getItemSize: function getItemSize(item) {
+        var index = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+        var id = this.simpleArray ? index != null ? index : this.items.indexOf(item) : item[this.keyField];
         return this.vscrollData.sizes[id] || 0;
       },
-
-      scrollToBottom() {
+      scrollToBottom: function scrollToBottom() {
+        var _this = this;
         if (this.$_scrollingToBottom) return;
         this.$_scrollingToBottom = true;
-        const el = this.$el; // Item is inserted to the DOM
-
-        this.$nextTick(() => {
-          el.scrollTop = el.scrollHeight + 5000; // Item sizes are computed
-
-          const cb = () => {
+        var el = this.$el;
+        // Item is inserted to the DOM
+        this.$nextTick(function () {
+          el.scrollTop = el.scrollHeight + 5000;
+          // Item sizes are computed
+          var cb = function cb() {
             el.scrollTop = el.scrollHeight + 5000;
-            requestAnimationFrame(() => {
+            requestAnimationFrame(function () {
               el.scrollTop = el.scrollHeight + 5000;
-
-              if (this.$_undefinedSizes === 0) {
-                this.$_scrollingToBottom = false;
+              if (_this.$_undefinedSizes === 0) {
+                _this.$_scrollingToBottom = false;
               } else {
                 requestAnimationFrame(cb);
               }
             });
           };
-
           requestAnimationFrame(cb);
         });
       }
-
     }
   };
 
@@ -1667,7 +1660,7 @@
   const __vue_script__$1 = script$1;
 
   /* template */
-  var __vue_render__$1 = function() {
+  var __vue_render__ = function () {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1683,14 +1676,14 @@
               direction: _vm.direction,
               "key-field": "id",
               "list-tag": _vm.listTag,
-              "item-tag": _vm.itemTag
+              "item-tag": _vm.itemTag,
             },
             on: { resize: _vm.onScrollerResize, visible: _vm.onScrollerVisible },
             scopedSlots: _vm._u(
               [
                 {
                   key: "default",
-                  fn: function(ref) {
+                  fn: function (ref) {
                     var itemWithSize = ref.item;
                     var index = ref.index;
                     var active = ref.active;
@@ -1699,15 +1692,15 @@
                         item: itemWithSize.item,
                         index: index,
                         active: active,
-                        itemWithSize: itemWithSize
-                      })
+                        itemWithSize: itemWithSize,
+                      }),
                     ]
-                  }
-                }
+                  },
+                },
               ],
               null,
               true
-            )
+            ),
           },
           "RecycleScroller",
           _vm.$attrs,
@@ -1721,13 +1714,13 @@
         _vm._v(" "),
         _c("template", { slot: "after" }, [_vm._t("after")], 2),
         _vm._v(" "),
-        _c("template", { slot: "empty" }, [_vm._t("empty")], 2)
+        _c("template", { slot: "empty" }, [_vm._t("empty")], 2),
       ],
       2
     )
   };
-  var __vue_staticRenderFns__$1 = [];
-  __vue_render__$1._withStripped = true;
+  var __vue_staticRenderFns__ = [];
+  __vue_render__._withStripped = true;
 
     /* style */
     const __vue_inject_styles__$1 = undefined;
@@ -1745,8 +1738,8 @@
     
 
     
-    const __vue_component__$1 = normalizeComponent(
-      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
+    const __vue_component__$1 = /*#__PURE__*/normalizeComponent(
+      { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
       __vue_inject_styles__$1,
       __vue_script__$1,
       __vue_scope_id__$1,
@@ -1758,7 +1751,7 @@
       undefined
     );
 
-  var script$2 = {
+  var script = {
     name: 'DynamicScrollerItem',
     inject: ['vscrollData', 'vscrollParent', 'vscrollResizeObserver'],
     props: {
@@ -1770,7 +1763,6 @@
         type: Boolean,
         default: false
       },
-
       /**
        * Indicates if the view is actively used to display an item.
        */
@@ -1796,32 +1788,27 @@
       }
     },
     computed: {
-      id() {
-        if (this.vscrollData.simpleArray) return this.index; // eslint-disable-next-line no-prototype-builtins
-
+      id: function id() {
+        if (this.vscrollData.simpleArray) return this.index;
+        // eslint-disable-next-line no-prototype-builtins
         if (this.item.hasOwnProperty(this.vscrollData.keyField)) return this.item[this.vscrollData.keyField];
-        throw new Error(`keyField '${this.vscrollData.keyField}' not found in your item. You should set a valid keyField prop on your Scroller`);
+        throw new Error("keyField '".concat(this.vscrollData.keyField, "' not found in your item. You should set a valid keyField prop on your Scroller"));
       },
-
-      size() {
+      size: function size() {
         return this.vscrollData.validSizes[this.id] && this.vscrollData.sizes[this.id] || 0;
       },
-
-      finalActive() {
+      finalActive: function finalActive() {
         return this.active && this.vscrollData.active;
       }
-
     },
     watch: {
       watchData: 'updateWatchData',
-
-      id() {
+      id: function id() {
         if (!this.size) {
           this.onDataUpdate();
         }
       },
-
-      finalActive(value) {
+      finalActive: function finalActive(value) {
         if (!this.size) {
           if (value) {
             if (!this.vscrollParent.$_undefinedMap[this.id]) {
@@ -1835,7 +1822,6 @@
             }
           }
         }
-
         if (this.vscrollResizeObserver) {
           if (value) {
             this.observeSize();
@@ -1846,39 +1832,38 @@
           this.updateSize();
         }
       }
-
     },
-
-    created() {
+    created: function created() {
+      var _this = this;
       if (this.$isServer) return;
       this.$_forceNextVScrollUpdate = null;
       this.updateWatchData();
-
       if (!this.vscrollResizeObserver) {
-        for (const k in this.sizeDependencies) {
-          this.$watch(() => this.sizeDependencies[k], this.onDataUpdate);
+        var _loop = function _loop(k) {
+          _this.$watch(function () {
+            return _this.sizeDependencies[k];
+          }, _this.onDataUpdate);
+        };
+        for (var k in this.sizeDependencies) {
+          _loop(k);
         }
-
         this.vscrollParent.$on('vscroll:update', this.onVscrollUpdate);
         this.vscrollParent.$on('vscroll:update-size', this.onVscrollUpdateSize);
       }
     },
-
-    mounted() {
+    mounted: function mounted() {
       if (this.vscrollData.active) {
         this.updateSize();
         this.observeSize();
       }
     },
-
-    beforeDestroy() {
+    beforeDestroy: function beforeDestroy() {
       this.vscrollParent.$off('vscroll:update', this.onVscrollUpdate);
       this.vscrollParent.$off('vscroll:update-size', this.onVscrollUpdateSize);
       this.unobserveSize();
     },
-
     methods: {
-      updateSize() {
+      updateSize: function updateSize() {
         if (this.finalActive) {
           if (this.$_pendingSizeUpdate !== this.id) {
             this.$_pendingSizeUpdate = this.id;
@@ -1890,11 +1875,11 @@
           this.$_forceNextVScrollUpdate = this.id;
         }
       },
-
-      updateWatchData() {
+      updateWatchData: function updateWatchData() {
+        var _this2 = this;
         if (this.watchData && !this.vscrollResizeObserver) {
-          this.$_watchData = this.$watch('item', () => {
-            this.onDataUpdate();
+          this.$_watchData = this.$watch('item', function () {
+            _this2.onDataUpdate();
           }, {
             deep: true
           });
@@ -1903,92 +1888,77 @@
           this.$_watchData = null;
         }
       },
-
-      onVscrollUpdate({
-        force
-      }) {
+      onVscrollUpdate: function onVscrollUpdate(_ref) {
+        var force = _ref.force;
         // If not active, sechedule a size update when it becomes active
         if (!this.finalActive && force) {
           this.$_pendingVScrollUpdate = this.id;
         }
-
         if (this.$_forceNextVScrollUpdate === this.id || force || !this.size) {
           this.updateSize();
         }
       },
-
-      onDataUpdate() {
+      onDataUpdate: function onDataUpdate() {
         this.updateSize();
       },
-
-      computeSize(id) {
-        this.$nextTick(() => {
-          if (this.id === id) {
-            const width = this.$el.offsetWidth;
-            const height = this.$el.offsetHeight;
-            this.applySize(width, height);
+      computeSize: function computeSize(id) {
+        var _this3 = this;
+        this.$nextTick(function () {
+          if (_this3.id === id) {
+            var width = _this3.$el.offsetWidth;
+            var height = _this3.$el.offsetHeight;
+            _this3.applySize(width, height);
           }
-
-          this.$_pendingSizeUpdate = null;
+          _this3.$_pendingSizeUpdate = null;
         });
       },
-
-      applySize(width, height) {
-        const size = ~~(this.vscrollParent.direction === 'vertical' ? height : width);
-
+      applySize: function applySize(width, height) {
+        var size = ~~(this.vscrollParent.direction === 'vertical' ? height : width);
         if (size && this.size !== size) {
           if (this.vscrollParent.$_undefinedMap[this.id]) {
             this.vscrollParent.$_undefinedSizes--;
             this.vscrollParent.$_undefinedMap[this.id] = undefined;
           }
-
           this.$set(this.vscrollData.sizes, this.id, size);
           this.$set(this.vscrollData.validSizes, this.id, true);
           if (this.emitResize) this.$emit('resize', this.id);
         }
       },
-
-      observeSize() {
+      observeSize: function observeSize() {
         if (!this.vscrollResizeObserver || !this.$el.parentNode) return;
         this.vscrollResizeObserver.observe(this.$el.parentNode);
         this.$el.parentNode.addEventListener('resize', this.onResize);
       },
-
-      unobserveSize() {
+      unobserveSize: function unobserveSize() {
         if (!this.vscrollResizeObserver) return;
         this.vscrollResizeObserver.unobserve(this.$el.parentNode);
         this.$el.parentNode.removeEventListener('resize', this.onResize);
       },
-
-      onResize(event) {
-        const {
-          width,
-          height
-        } = event.detail.contentRect;
+      onResize: function onResize(event) {
+        var _event$detail$content = event.detail.contentRect,
+          width = _event$detail$content.width,
+          height = _event$detail$content.height;
         this.applySize(width, height);
       }
-
     },
-
-    render(h) {
+    render: function render(h) {
       return h(this.tag, this.$slots.default);
     }
-
   };
 
   /* script */
-  const __vue_script__$2 = script$2;
+  const __vue_script__ = script;
 
   /* template */
 
     /* style */
-    const __vue_inject_styles__$2 = undefined;
+    const __vue_inject_styles__ = undefined;
     /* scoped */
-    const __vue_scope_id__$2 = undefined;
+    const __vue_scope_id__ = undefined;
     /* module identifier */
-    const __vue_module_identifier__$2 = undefined;
+    const __vue_module_identifier__ = undefined;
     /* functional template */
-    const __vue_is_functional_template__$2 = undefined;
+    const __vue_is_functional_template__ = undefined;
     /* style inject */
     
     /* style inject SSR */
@@ -1997,74 +1967,75 @@
     
 
     
-    const __vue_component__$2 = normalizeComponent(
+    const __vue_component__ = /*#__PURE__*/normalizeComponent(
       {},
-      __vue_inject_styles__$2,
-      __vue_script__$2,
-      __vue_scope_id__$2,
-      __vue_is_functional_template__$2,
-      __vue_module_identifier__$2,
+      __vue_inject_styles__,
+      __vue_script__,
+      __vue_scope_id__,
+      __vue_is_functional_template__,
+      __vue_module_identifier__,
       false,
       undefined,
       undefined,
       undefined
     );
 
-  function IdState ({
-    idProp = vm => vm.item.id
-  } = {}) {
-    const store = {};
-    const vm = new Vue({
-      data() {
+  function IdState () {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref$idProp = _ref.idProp,
+      idProp = _ref$idProp === void 0 ? function (vm) {
+        return vm.item.id;
+      } : _ref$idProp;
+    var store = {};
+    var vm = new Vue__default["default"]({
+      data: function data() {
         return {
-          store
+          store: store
         };
       }
+    });
 
-    }); // @vue/component
-
+    // @vue/component
     return {
-      data() {
+      data: function data() {
         return {
           idState: null
         };
       },
-
-      created() {
+      created: function created() {
+        var _this = this;
         this.$_id = null;
-
         if (typeof idProp === 'function') {
-          this.$_getId = () => idProp.call(this, this);
+          this.$_getId = function () {
+            return idProp.call(_this, _this);
+          };
         } else {
-          this.$_getId = () => this[idProp];
+          this.$_getId = function () {
+            return _this[idProp];
+          };
         }
-
         this.$watch(this.$_getId, {
-          handler(value) {
-            this.$nextTick(() => {
-              this.$_id = value;
+          handler: function handler(value) {
+            var _this2 = this;
+            this.$nextTick(function () {
+              _this2.$_id = value;
             });
           },
-
           immediate: true
         });
         this.$_updateIdState();
       },
-
-      beforeUpdate() {
+      beforeUpdate: function beforeUpdate() {
         this.$_updateIdState();
       },
-
       methods: {
         /**
          * Initialize an idState
          * @param {number|string} id Unique id for the data
-         */
-        $_idStateInit(id) {
-          const factory = this.$options.idState;
-
+         */$_idStateInit: function $_idStateInit(id) {
+          var factory = this.$options.idState;
           if (typeof factory === 'function') {
-            const data = factory.call(this, this);
+            var data = factory.call(this, this);
             vm.$set(store, id, data);
             this.$_id = id;
             return data;
@@ -2072,81 +2043,69 @@
             throw new Error('[mixin IdState] Missing `idState` function on component definition.');
           }
         },
-
         /**
          * Ensure idState is created and up-to-date
-         */
-        $_updateIdState() {
-          const id = this.$_getId();
-
+         */$_updateIdState: function $_updateIdState() {
+          var id = this.$_getId();
           if (id == null) {
-            console.warn(`No id found for IdState with idProp: '${idProp}'.`);
+            console.warn("No id found for IdState with idProp: '".concat(idProp, "'."));
           }
-
           if (id !== this.$_id) {
             if (!store[id]) {
               this.$_idStateInit(id);
             }
-
             this.idState = store[id];
           }
         }
-
       }
     };
   }
 
   function registerComponents(Vue, prefix) {
-    Vue.component(`${prefix}recycle-scroller`, __vue_component__);
-    Vue.component(`${prefix}RecycleScroller`, __vue_component__);
-    Vue.component(`${prefix}dynamic-scroller`, __vue_component__$1);
-    Vue.component(`${prefix}DynamicScroller`, __vue_component__$1);
-    Vue.component(`${prefix}dynamic-scroller-item`, __vue_component__$2);
-    Vue.component(`${prefix}DynamicScrollerItem`, __vue_component__$2);
+    Vue.component("".concat(prefix, "recycle-scroller"), __vue_component__$2);
+    Vue.component("".concat(prefix, "RecycleScroller"), __vue_component__$2);
+    Vue.component("".concat(prefix, "dynamic-scroller"), __vue_component__$1);
+    Vue.component("".concat(prefix, "DynamicScroller"), __vue_component__$1);
+    Vue.component("".concat(prefix, "dynamic-scroller-item"), __vue_component__);
+    Vue.component("".concat(prefix, "DynamicScrollerItem"), __vue_component__);
   }
-
-  const plugin$2 = {
+  var plugin = {
     // eslint-disable-next-line no-undef
-    version: "1.1.2",
-
-    install(Vue, options) {
-      const finalOptions = Object.assign({}, {
+    version: "0.0.0",
+    install: function install(Vue, options) {
+      var finalOptions = Object.assign({}, {
         installComponents: true,
         componentsPrefix: ''
       }, options);
-
-      for (const key in finalOptions) {
+      for (var key in finalOptions) {
         if (typeof finalOptions[key] !== 'undefined') {
           config[key] = finalOptions[key];
         }
       }
-
       if (finalOptions.installComponents) {
         registerComponents(Vue, finalOptions.componentsPrefix);
       }
     }
-
   };
 
-  let GlobalVue$2 = null;
-
+  // Auto-install
+  var GlobalVue = null;
   if (typeof window !== 'undefined') {
-    GlobalVue$2 = window.Vue;
+    GlobalVue = window.Vue;
   } else if (typeof global !== 'undefined') {
-    GlobalVue$2 = global.Vue;
+    GlobalVue = global.Vue;
   }
-
-  if (GlobalVue$2) {
-    GlobalVue$2.use(plugin$2);
+  if (GlobalVue) {
+    GlobalVue.use(plugin);
   }
 
   exports.DynamicScroller = __vue_component__$1;
-  exports.DynamicScrollerItem = __vue_component__$2;
+  exports.DynamicScrollerItem = __vue_component__;
   exports.IdState = IdState;
-  exports.RecycleScroller = __vue_component__;
-  exports.default = plugin$2;
+  exports.RecycleScroller = __vue_component__$2;
+  exports["default"] = plugin;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
 //# sourceMappingURL=vue-virtual-scroller.umd.js.map
