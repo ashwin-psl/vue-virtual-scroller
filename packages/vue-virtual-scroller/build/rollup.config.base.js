@@ -42,6 +42,7 @@ export default {
     }),
     cjs(),
     replace({
+      preventAssignment: true,
       VERSION: JSON.stringify(config.version),
     }),
   ],
