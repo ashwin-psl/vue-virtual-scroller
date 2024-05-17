@@ -32,6 +32,13 @@ export default {
     }),
     babel({
       exclude: 'node_modules/**',
+      presets: [
+        ['@babel/preset-env', {
+          targets: {
+            browsers: ['ie 11', 'Safari 10'],
+          },
+        }],
+      ],
     }),
     cjs(),
     replace({
